@@ -36,9 +36,9 @@ public class CyclicBarrier {
 		
 		if (count == parties) {
 			count = 0; //reset
-			this.semaphore.release(parties);  // want to release all the threads
+			semaphore.release(parties);  // want to release all the threads
 		} else {
-			this.semaphore.acquire();  //should there be a wait??
+			semaphore.acquire();  //should there be a wait??
 			
 		}
 		
