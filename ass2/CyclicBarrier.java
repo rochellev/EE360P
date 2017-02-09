@@ -33,13 +33,12 @@ public class CyclicBarrier {
 	public int await() throws InterruptedException {
 		count++; // increment, await was called, so another thread
 		int index = parties - count;
-
-		if (count == parties - 1) {
-			semaphore.release();
+		if (count == parties) {
+			semaphore.release(parties);  // should be this.semaphore ??
+			count = 0; //reset
 		} else {
 			semaphore.acquire();
 		}
-
 		return index;
 	}
 }
