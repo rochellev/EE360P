@@ -31,15 +31,17 @@ public class CyclicBarrier {
 	 * 1) indicates the first to arrive and zero indicates the last to arrive.
 	 */
 	public synchronized int await() throws InterruptedException {  //ok to be synchronized??
-		count++; // increment, await was called, so another thread
+		count++; // increment, await was called, so another thread is waiting
 		int index = parties - count;
+		
 		if (count == parties) {
-			semaphore.release(parties);  // want to release all the threads
 			count = 0; //reset
+			this.semaphore.release(parties);  // want to release all the threads
 		} else {
-			semaphore.acquire();  //should there be a wait??
+			this.semaphore.acquire();  //should there be a wait??
 			
 		}
+		
 		return index;
 	}
 }
