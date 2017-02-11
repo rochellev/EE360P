@@ -32,7 +32,7 @@ public class CyclicBarrier {
 	 */
 	public synchronized int await() throws InterruptedException {  //ok to be synchronized??
 		count++; // increment, await was called, so another thread is waiting
-		int index = parties - count;
+		int index = parties - count;   //is enough ?
 		
 		if (count == parties) {
 			count = 0; //reset

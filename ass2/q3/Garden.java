@@ -14,15 +14,25 @@ import java.util.concurrent.locks.ReentrantLock;
  * Benjamin = seeder
  * Mary = filler
  * */
+
 public class Garden {
-	
-	// conditions that rule the threads
-	final ReentrantLock dLock = new ReentrantLock();
+	/*
+	// not sure how many locks 
+	final ReentrantLock dLock = new ReentrantLock();  
 	final ReentrantLock sLock = new ReentrantLock();
 	final ReentrantLock fLock = new ReentrantLock();
-	final Condition noDigging = dLock.newCondition();  // digger wait
-	final Condition noEmptyHoles = sLock.newCondition();   // seeder wait
-	final Condition noSeededHoles = fLock.newCondition();  // filler wait
+	final Condition notDigging = dLock.newCondition();  // digger wait
+	final Condition emptyHole = dLock.newCondition();
+	final Condition seededHole = sLock.newCondition();   
+	final Condition filledHole = fLock.newCondition();  // filler wait
+	int digCount, seedCount, fillCount;  //should make private?
+	
+	*/
+	final ReentrantLock Lock = new ReentrantLock();  
+	final Condition notDigging = Lock.newCondition();  // digger wait
+	final Condition emptyHole = Lock.newCondition();
+	final Condition seededHole = Lock.newCondition();   
+	final Condition filledHole = Lock.newCondition();  // filler wait
 	int digCount, seedCount, fillCount;  //should make private?
 
 	public Garden() {
@@ -31,34 +41,68 @@ public class Garden {
 		this.fillCount = 0;
 	};
 
-	
-	public synchronized void startDigging() throws InterruptedException{
-		dLock.lock();
+	public void startDigging() throws InterruptedException {
+		Lock.lock();
 		try{
-			while((digCount - seedCount >= 4) || (digCount - fillCount >= 8)){
-				noDigging.await();
-			}
-			digCount++;  // is here the right spot to increment? idk
-			noDigging.signal();
-		}finally{
-			dLock.unlock();
+		while(digCount - seedCount >= 4){  // wait for digger conditions
+				seededHole.await();
 		}
-
+		while(digCount - fillCount >=8){
+				filledHole.await();
+		}
+		digCount++;            // once satisfied, can dig new hole
+		emptyHole.signalAll(); // notify others
+		}finally{
+			Lock.unlock();
+		}
+		
 	};
 
-	public synchronized void doneDigging() {
+	//not sure what supposed to do
+	public void doneDigging() throws InterruptedException{
+		Lock.lock();
+		try{
+			
+			
+		}finally{
+			Lock.unlock();
+		}
+		
 	};
 
-	public synchronized void startSeeding() {
+	public void startSeeding() throws InterruptedException{
+		Lock.lock();
+		try{
+			while(digCount <= seedCount){ // no empty holes to put seeds in
+				emptyHole.await();       // waiting for at least one empty hole from digger
+			}
+			seedCount++;
+			seededHole.signalAll();
+		}finally{
+		Lock.unlock();	
+		}
+		
 	};
 
-	public synchronized void doneSeeding() {
+	public void doneSeeding() {
+		
+		
 	};
 
-	public synchronized void startFilling() {
+	public void startFilling() throws InterruptedException {
+		Lock.lock();
+		try{
+			while( seedCount <= fillCount ){ // no seeded holes to fill
+				seededHole.await();
+			}
+			seedCount++;
+			filledHole.signalAll();
+		}finally{
+			Lock.unlock();
+		}
 	};
 
-	public synchronized void doneFilling() {
+	public void doneFilling() {
 	};
 
 	/*
@@ -66,15 +110,15 @@ public class Garden {
 	 * filled by Newton, Benjamin or Mary at the time the methods' are invoked
 	 * on the garden class.
 	 */
-	public synchronized int totalHolesDugByNewton() {
+	public int totalHolesDugByNewton() {
 		return digCount;
 	};
 
-	public synchronized int totalHolesSeededByBenjamin() {
+	public int totalHolesSeededByBenjamin() {
 		return seedCount;
 	};
 
-	public synchronized int totalHolesFilledByMary() {
+	public int totalHolesFilledByMary() {
 		return fillCount;
 	};
 }
