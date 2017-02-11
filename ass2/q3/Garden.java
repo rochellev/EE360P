@@ -16,23 +16,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * */
 
 public class Garden {
-	/*
-	// not sure how many locks 
-	final ReentrantLock dLock = new ReentrantLock();  
-	final ReentrantLock sLock = new ReentrantLock();
-	final ReentrantLock fLock = new ReentrantLock();
-	final Condition notDigging = dLock.newCondition();  // digger wait
-	final Condition emptyHole = dLock.newCondition();
-	final Condition seededHole = sLock.newCondition();   
-	final Condition filledHole = fLock.newCondition();  // filler wait
-	int digCount, seedCount, fillCount;  //should make private?
+
 	
-	*/
 	final ReentrantLock Lock = new ReentrantLock();  
-	final Condition notDigging = Lock.newCondition();  // digger wait
-	final Condition emptyHole = Lock.newCondition();
+	final Condition emptyHole = Lock.newCondition(); 
 	final Condition seededHole = Lock.newCondition();   
-	final Condition filledHole = Lock.newCondition();  // filler wait
+	final Condition filledHole = Lock.newCondition();  
 	int digCount, seedCount, fillCount;  //should make private?
 
 	public Garden() {
@@ -58,7 +47,7 @@ public class Garden {
 		
 	};
 
-	//not sure what supposed to do
+	//TODO: need to figure out what these done things do. just unlock??
 	public void doneDigging() throws InterruptedException{
 		Lock.lock();
 		try{
@@ -110,6 +99,8 @@ public class Garden {
 	 * filled by Newton, Benjamin or Mary at the time the methods' are invoked
 	 * on the garden class.
 	 */
+	
+	//TODO: do these need locks?
 	public int totalHolesDugByNewton() {
 		return digCount;
 	};
