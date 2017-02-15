@@ -1,5 +1,6 @@
 package q3;
 
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -7,7 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * lv5743
  * rvr324
  */
-
 
 /*
  * Newton = digger
@@ -18,10 +18,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Garden {
 	
 	final ReentrantLock Lock = new ReentrantLock();   // the shovel is the resource
-	final Condition emptyHole = Lock.newCondition();  // notify when a new hole dug, seeder awaits
-	final Condition seededHole = Lock.newCondition(); // notify when a hole seeded, filler and digger awaits   
-	final Condition filledHole = Lock.newCondition();  // notify when a filled hole, digger awaits
-	int digCount, seedCount, fillCount;  //should make private?
+	final ReentrantLock seedLock = new ReentrantLock();
+	final Condition digReady = Lock.newCondition();
+	final Condition seedReady = seedLock.newCondition();
+	final Condition fillReady = Lock.newCondition();
+	
+	int digCount, seedCount, fillCount;
 
 	public Garden() {
 		this.digCount = 0;
@@ -29,37 +31,41 @@ public class Garden {
 		this.fillCount = 0;
 	};
 
+	
+	// the seeding should be locked until have dug one, then signal  
 	public void startDigging(){
 		Lock.lock();  // waits until free	
-		while(digCount - seedCount >= 4){  // wait for digger conditions
+		while((digCount - seedCount >= 4) || (digCount - fillCount >=8) ){  // wait for digger conditions
 			try {
-				seededHole.await();
+				digReady.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 	}
-	while(digCount - fillCount >=8){
-			try {
-				filledHole.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-	}
+	
 		
 	};
 
 	public void doneDigging(){
 		// assume a dig was made
 		digCount++;
-		emptyHole.signalAll();  // indicate new hole available
 		Lock.unlock(); // release resource
+		try{		
+		if(digCount > seedCount){
+			seedLock.lock(); // no more seeds need to be sew
+			seedReady.signal();
+		}
+		}finally{ seedLock.unlock();}
+
+		
 	};
 
-	// start seeding not need lock to work, just the conditions to be there
+	
 	public void startSeeding(){
+		seedLock.lock();
 		while(digCount <= seedCount){ // no empty holes to put seeds in
 			try {
-				emptyHole.await();  // waiting for at least one empty hole from digger
+				seedReady.await();  // waiting for at least one empty hole from digger
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}      
@@ -70,7 +76,20 @@ public class Garden {
 	public void doneSeeding() {
 		// assume some seed function called
 		seedCount++;
-		seededHole.signalAll();
+		seedLock.unlock();
+		Lock.lock();
+		
+		try{
+			if(digCount - seedCount < 4){
+				digReady.signal();
+			}
+			if(seedCount > fillCount){
+				fillReady.signal();
+			}
+		}finally{
+			Lock.unlock();
+		}
+	
 		
 	};
 
@@ -78,7 +97,7 @@ public class Garden {
 		Lock.lock();
 		while( seedCount <= fillCount ){ // no seeded holes to fill
 			try {
-				seededHole.await();
+				fillReady.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -88,8 +107,9 @@ public class Garden {
 
 	public void doneFilling() {
 		fillCount++;
-		filledHole.signalAll();
+		digReady.signal();
 		Lock.unlock();
+	
 	};
 
 	/*
@@ -98,7 +118,7 @@ public class Garden {
 	 * on the garden class.
 	 */
 	
-	//TODO: do these need locks?
+	
 	public int totalHolesDugByNewton() {
 		return digCount;
 	};
