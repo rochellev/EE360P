@@ -16,12 +16,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * */
 
 public class Garden {
-
 	
-	final ReentrantLock Lock = new ReentrantLock();  
-	final Condition emptyHole = Lock.newCondition(); 
-	final Condition seededHole = Lock.newCondition();   
-	final Condition filledHole = Lock.newCondition();  
+	final ReentrantLock Lock = new ReentrantLock();   // the shovel is the resource
+	final Condition emptyHole = Lock.newCondition();  // notify when a new hole dug, seeder awaits
+	final Condition seededHole = Lock.newCondition(); // notify when a hole seeded, filler and digger awaits   
+	final Condition filledHole = Lock.newCondition();  // notify when a filled hole, digger awaits
 	int digCount, seedCount, fillCount;  //should make private?
 
 	public Garden() {
@@ -30,68 +29,67 @@ public class Garden {
 		this.fillCount = 0;
 	};
 
-	public void startDigging() throws InterruptedException {
-		Lock.lock();
-		try{
+	public void startDigging(){
+		Lock.lock();  // waits until free	
 		while(digCount - seedCount >= 4){  // wait for digger conditions
+			try {
 				seededHole.await();
-		}
-		while(digCount - fillCount >=8){
-				filledHole.await();
-		}
-		digCount++;            // once satisfied, can dig new hole
-		emptyHole.signalAll(); // notify others
-		}finally{
-			Lock.unlock();
-		}
-		
-	};
-
-	//TODO: need to figure out what these done things do. just unlock??
-	public void doneDigging() throws InterruptedException{
-		Lock.lock();
-		try{
-			
-			
-		}finally{
-			Lock.unlock();
-		}
-		
-	};
-
-	public void startSeeding() throws InterruptedException{
-		Lock.lock();
-		try{
-			while(digCount <= seedCount){ // no empty holes to put seeds in
-				emptyHole.await();       // waiting for at least one empty hole from digger
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			seedCount++;
-			seededHole.signalAll();
-		}finally{
-		Lock.unlock();	
+	}
+	while(digCount - fillCount >=8){
+			try {
+				filledHole.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	}
+		
+	};
+
+	public void doneDigging(){
+		// assume a dig was made
+		digCount++;
+		emptyHole.signalAll();  // indicate new hole available
+		Lock.unlock(); // release resource
+	};
+
+	// start seeding not need lock to work, just the conditions to be there
+	public void startSeeding(){
+		while(digCount <= seedCount){ // no empty holes to put seeds in
+			try {
+				emptyHole.await();  // waiting for at least one empty hole from digger
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}      
 		}
 		
 	};
 
 	public void doneSeeding() {
-		
+		// assume some seed function called
+		seedCount++;
+		seededHole.signalAll();
 		
 	};
 
-	public void startFilling() throws InterruptedException {
+	public void startFilling() {
 		Lock.lock();
-		try{
-			while( seedCount <= fillCount ){ // no seeded holes to fill
+		while( seedCount <= fillCount ){ // no seeded holes to fill
+			try {
 				seededHole.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			seedCount++;
-			filledHole.signalAll();
-		}finally{
-			Lock.unlock();
 		}
+		
 	};
 
 	public void doneFilling() {
+		fillCount++;
+		filledHole.signalAll();
+		Lock.unlock();
 	};
 
 	/*
