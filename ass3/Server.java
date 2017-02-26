@@ -29,23 +29,26 @@ public class Server {
 	    // parse the inventory file, done once
 	    HashMap<String, Integer> inventory = new HashMap<String, Integer>();
 	    String line = null;
-	    String arr[];
-	    Integer value;
+	    String[] arr;
+	    Integer value =0;
 	    try { 
 	    	FileReader fileReader = new FileReader(fileName); // need to wrap with buffer
 			BufferedReader buffReader = new BufferedReader(fileReader); 
 			line = buffReader.readLine();  // gets a line terminated by enter
 			while(line != null){
 				// the line has a string and integer
-				//System.out.println("the line looks like ' " + line + " ' ");
+				//System.out.println("the line looks like:" + line + " ");
 				arr = line.split(" ");
-				value = Integer.getInteger(arr[1]);
-			    //System.out.println(arr[0]);
-			    //System.out.println(value);
+				
+				//value = Integer.getInteger(arr[1]);   //this resulted in null for some reason idk
+				value = Integer.valueOf(arr[1]);
+				System.out.println(arr[0]);
+			   // System.out.println(arr[1]);
+			    System.out.println(value);
 			    inventory.put(arr[0], value);
 			    line = buffReader.readLine();
 			}
-			
+			buffReader.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			System.out.println("hey girl, can't find the file " + fileName + " :( ");
