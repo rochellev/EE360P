@@ -41,6 +41,8 @@ public class Client {
       } else if (tokens[0].equals("list")) {
         // TODO: send appropriate command to the server and display the
         // appropriate responses form the server
+    	  // list 
+    	  
       } else {
         System.out.println("ERROR: No such command");
       }
