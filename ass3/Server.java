@@ -39,7 +39,7 @@ public class Server {
 				// the line has a string and integer
 				//System.out.println("the line looks like ' " + line + " ' ");
 				arr = line.split(" ");
-				value = Integer.parseInt(arr[1]);
+				value = Integer.getInteger(arr[1]);
 			    //System.out.println(arr[0]);
 			    //System.out.println(value);
 			    inventory.put(arr[0], value);

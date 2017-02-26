@@ -21,7 +21,7 @@ public class Client {
     udpPort = Integer.parseInt(args[2]);
 
     Scanner sc = new Scanner(System.in);
-    boolean modeFlag; //flag default TCP = false and UDP = true
+    boolean modeFlag = false; //flag default TCP = false and UDP = true
     while(sc.hasNextLine()) {
       String cmd = sc.nextLine();
       String[] tokens = cmd.split(" ");
@@ -33,13 +33,20 @@ public class Client {
     		  modeFlag = true;
     	  }else{
     		  System.out.println("Protocol set to TCP");
-    		  modeFlag = false;  // set default
+    		  modeFlag = false;  // TCP default
     	  }
     	  
       }
       else if (tokens[0].equals("purchase")) {
         // TODO: send appropriate command to the server and display the
         // appropriate responses form the server
+    	if(modeFlag){ // true if UDP
+    		
+    	}else{
+    		
+    	} 
+    	  
+    	  
       } else if (tokens[0].equals("cancel")) {
         // TODO: send appropriate command to the server and display the
         // appropriate responses form the server
