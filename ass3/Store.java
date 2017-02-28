@@ -7,6 +7,7 @@ public class Store {
 	private int globalID;
 	private HashMap<String, Integer> inventory;
 	private ArrayList<Order> orderList;
+	private static Store singleton = null;
 	
 	public Store(){
 		globalID = 0;
@@ -20,6 +21,27 @@ public class Store {
 		this.orderList = list;
 	}
 	
+	public static Store getInstance() {
+		if (singleton == null) {
+			synchronized (Store.class) {
+				if (singleton == null) {
+					singleton = new Store();
+				}
+			}
+		}
+		return singleton;
+	}
+	
+	public void setID(int id){
+		globalID = id;
+	}
+	
+	public int getID(){
+		return globalID;
+	}
+	public void setInv(HashMap<String,Integer> inv){
+		inventory = inv;
+	}
 	public void incrementGlobalID(){
 		globalID++;
 	}
@@ -30,25 +52,30 @@ public class Store {
 	public void setValue(String key, Integer value){
 		inventory.put(key,value);
 	}
-	public synchronized void makePurchase(String userName, String productName, Integer quantity){
+	public synchronized String makePurchase(String userName, String productName, Integer quantity){
 		Integer invQuantity = getValue(productName);
+		String ret;
 		if(getValue(productName)==null){
-			System.out.println("Not Available - We do not sell this product");
+			ret = "Not Available - We do not sell this product";
 		}else if(invQuantity.compareTo(quantity) >= 0){
 			setValue(productName, (invQuantity.intValue()-quantity.intValue()));
 			Order purchase = new Order(userName,productName, quantity, this.globalID);
 			incrementGlobalID();
 			orderList.add(purchase);
+			int id = getID();
+			ret = "You order has been placed, <" + id + "> <" + userName+ "> <" + productName + "> <" + quantity + ">";
 		}else{
-			System.out.println("Not Available - Not enough items");
-		}		
+			ret = "Not Available - Not enough items";
+		}
+		return ret;		
 	}
 	
-	public synchronized void cancelPurchase(Integer orderID){
+	public synchronized String cancelPurchase(Integer orderID){
 		boolean found = false;
 		String productName;
 		Integer val;
 		Order cancel = null;
+		String ret = null;
 		for(Order x: orderList){
 			if(x.getOrderID().compareTo(orderID)==0){
 				cancel = x;
@@ -56,12 +83,12 @@ public class Store {
 				val = x.getQuantity();
 				orderList.remove(x);
 				found = true;
-				System.out.println("Order <" + orderID + "> is canceled");
+				ret = "Order <" + orderID + "> is canceled";
 				break;			
 			}
 		}
 		if(!found){
-			System.out.println("<" + orderID + "> not found, no such order");
+			ret = "<" + orderID + "> not found, no such order";
 		}else{
 			Integer invQuantity = getValue(cancel.getProductName()); //inv current value
 			Integer prodtQuantity = cancel.getQuantity();
@@ -69,28 +96,33 @@ public class Store {
 			inventory.put(cancel.getProductName(), invQuantity + prodtQuantity);
 			
 		}
+		return ret;
 	}
 	
-	public synchronized void search(String username){
+	public synchronized String search(String username){
 		boolean found = false;
+		String ret = null;
 		for(Order x: orderList){
 			if(x.getUserName().equals(username)){
 				found = true;
-				System.out.println("<" + x.getOrderID()+ "> <"+ x.getProductName()+ "> <" + x.getQuantity()+ ">");
+				ret = "<" + x.getOrderID()+ "> <"+ x.getProductName()+ "> <" + x.getQuantity()+ ">";
 			}
 			
 		}
 		if(!found){
-			System.out.println("No order found for <" + username + ">");
+			ret = "No order found for <" + username + ">";
 		}
+		return ret;
 		
 	}
 	
-	public synchronized void list(){
+	public synchronized ArrayList<String> list(){
+		ArrayList<String> ret = new ArrayList<String>();
 		for (String productname: inventory.keySet()){
             Integer value = inventory.get(productname);  
-            System.out.println(productname + " " + value);  
-		} 
+            ret.add(productname + " " + value);  
+		}
+		return ret; 
 	}
 	
 

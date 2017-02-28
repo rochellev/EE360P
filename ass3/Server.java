@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Server {
-	  public static void main (String[] args) {
+	  public static void main (String[] args) throws IOException {
 	    int tcpPort;
 	    int udpPort;
 	    
@@ -31,9 +31,10 @@ public class Server {
 	    String line = null;
 	    String[] arr;
 	    Integer value =0;
+	    BufferedReader buffReader = null;
 	    try { 
 	    	FileReader fileReader = new FileReader(fileName); // need to wrap with buffer
-			BufferedReader buffReader = new BufferedReader(fileReader); 
+			buffReader = new BufferedReader(fileReader); 
 			line = buffReader.readLine();  // gets a line terminated by enter
 			while(line != null){
 				// the line has a string and integer
@@ -48,7 +49,7 @@ public class Server {
 			    inventory.put(arr[0], value);
 			    line = buffReader.readLine();
 			}
-			buffReader.close();
+			//buffReader.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			System.out.println("hey girl, can't find the file " + fileName + " :( ");
@@ -56,8 +57,18 @@ public class Server {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally{
+			buffReader.close();
 		}
 	    
+	    Store EE360PStore = Store.getInstance();
+	    EE360PStore.setID(1);
+	    EE360PStore.setInv(inventory);
+	    
 	    // TODO: handle request from clients
+	    TCPServer tcpServer = new TCPServer(tcpPort);
+	    Thread TCP = new Thread(tcpServer);
+	    UDPServer udpServer = new UDPServer(udpPort);
+	    Thread UDP =  new Thread(udpServer);
 	  }
 	}
