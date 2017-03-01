@@ -23,8 +23,8 @@ public class Client{
     if (args.length != 3) {
       System.out.println("ERROR: Provide 3 arguments");
       System.out.println("\t(1) <hostAddress>: the address of the server");
-      System.out.println("\t(2) <tcpPort>: the port number for TCP connection");
-      System.out.println("\t(3) <udpPort>: the port number for UDP connection");
+      System.out.println("\t(2) <tcpPort>: the port number for TCP connection"); //49668
+      System.out.println("\t(3) <udpPort>: the port number for UDP connection"); //48351
       System.exit(-1);
     }
 
@@ -41,12 +41,15 @@ public class Client{
 	InetAddress addr = null;
 	
 	try {
-		addr = InetAddress.getByName(hostAddress);
+		addr = InetAddress.getLocalHost();  // server is on local host
+		System.out.println("the hostAddress is " + hostAddress + "");
+		System.out.println("the address from hostAddress " + addr+ "");
+		
 	} catch (UnknownHostException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
-	echoSocket = new Socket(addr,tcpPort);
+	echoSocket = new Socket(addr,tcpPort); //socket to server, local host
 	input = echoSocket.getInputStream();
 	output = echoSocket.getOutputStream();
 	
