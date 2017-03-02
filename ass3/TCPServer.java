@@ -16,14 +16,15 @@ public class TCPServer implements Runnable{
 		// TODO Auto-generated method stub
 		while(true){
 			Socket s;
+			//System.out.println("New TCP Connection");
 			try {
 				s = socket.accept();
 				TCPRequests tcpRequests = null;
 				while(s != null){
 					tcpRequests = new TCPRequests(s);
-					Thread tcp = new Thread(tcpRequests);
-					tcp.start();
-					s = socket.accept();
+					//Thread tcp = new Thread(tcpRequests);
+					//tcp.start();
+					//s = socket.accept();
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

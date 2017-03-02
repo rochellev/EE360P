@@ -1,0 +1,54 @@
+purchase rochelle phone 2
+purchase lavanya laptop 5
+purchase bob car 1
+search rochelle
+list
+cancel rochelle phone 2
+list
+
+
+*** Problems ***
+list	- writes nullphone idk  
+this is how it looks ::::	
+list   ///what i type
+nullphone 20   <---- why nullphone ?
+ps4 17
+camera 10
+laptop 15
+xbox 8
+search	-only prints the username,  
+		-missing the name of items bought and quantity
+		
+purchase	-allows buy items that do not exits
+
+
+--check to see if the tokens being sent to receivers
+-- logic with store
+-- printing the store 
+-- print the oreder id with purchases
+
+
+store: 
+-- add printing method, could be useful for implementing list?   
+-- how pass, can print? probs not
+
+ System.out.println("the token[3]" + Integer.valueOf(tokens[3]));
+ 
+ 
+ -- after one request, not accept any other
+ 
+ 
+ server socket
+
+
+specify what port  
+-- would it be the argument   
+ -- get server socket   --how get port that 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

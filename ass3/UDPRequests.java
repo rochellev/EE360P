@@ -1,24 +1,27 @@
 package q3;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+
+//does stuff with the store
 
 public class UDPRequests implements Runnable {
 	DatagramSocket sock;
 	DatagramPacket pack;
 	
 	public UDPRequests(DatagramSocket socket, DatagramPacket sendP) {
-		// TODO Auto-generated constructor stub
 		sock = socket;
 		pack = sendP;
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		System.out.println(
+				new String(pack.getData(), 0, pack.getLength()));
 		String cmd = new String(pack.getData(), 0,
 				pack.getLength());
 	    String[] tokens = cmd.split(" ");
@@ -26,17 +29,18 @@ public class UDPRequests implements Runnable {
 	    int port = pack.getPort();
 	    InetAddress addr = pack.getAddress();
 	    DatagramPacket sendPack;
-	    byte[] ret;
+	    byte[] ret; // the response
 	      if (tokens[0].equals("purchase")) {
 	        // TODO: send appropriate command to the server and display the
 	        // appropriate responses form the server
-	    	print = Store.getInstance().makePurchase(tokens[1], tokens[2], Integer.valueOf(tokens[3]));
+	    	print = Store.getInstance().makePurchase(tokens[1], tokens[2], Integer.valueOf(tokens[3]));  // get result from make purchase
 	    	ret = print.getBytes();
+	    	//ret = "Test Not Available - We do not sell this product\n".getBytes();
 	    	sendPack = new DatagramPacket(ret,ret.length,addr,port);
 	    	try {
 				sock.send(sendPack);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 	      } else if (tokens[0].equals("cancel")) {
@@ -72,14 +76,15 @@ public class UDPRequests implements Runnable {
 	    	  }
 	    	  ret = print.getBytes();
 	    	  sendPack = new DatagramPacket(ret,ret.length,addr,port);
-	    	  try {
-					sock.send(sendPack);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	      }
-		
+	    	
+	      
+	      try {
+				sock.send(sendPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
 	}
 
 }

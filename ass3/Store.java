@@ -7,12 +7,12 @@ public class Store {
 	private int globalID;
 	private HashMap<String, Integer> inventory;
 	private ArrayList<Order> orderList;
-	private static Store singleton = null;
+	private static Store singleton = null;   // doing the singleton thing
 	
 	public Store(){
-		globalID = 0;
-		this.inventory = null;
-		this.orderList = null;
+		globalID = 1;
+		inventory = new HashMap<String, Integer>();
+		orderList = new ArrayList<Order>();
 	}
 	
 	public Store(int id, HashMap<String, Integer> inv, ArrayList<Order> list){
@@ -39,31 +39,31 @@ public class Store {
 	public int getID(){
 		return globalID;
 	}
-	public void setInv(HashMap<String,Integer> inv){
+	public void setInv(HashMap<String, Integer> inv){
 		inventory = inv;
 	}
 	public void incrementGlobalID(){
 		globalID++;
 	}
 	public Integer getValue(String key){
-		return inventory.get(key);
+		return inventory.get(key);  // returns null if no mapping
 	}
 	
 	public void setValue(String key, Integer value){
 		inventory.put(key,value);
 	}
 	public synchronized String makePurchase(String userName, String productName, Integer quantity){
-		Integer invQuantity = getValue(productName);
-		String ret;
-		if(getValue(productName)==null){
+		Integer invQuantity = getValue(productName); //checks the inventory hash map, returns the # of items in inventory
+		String ret = null;
+		if(invQuantity.equals(null)){  // no items 
 			ret = "Not Available - We do not sell this product";
-		}else if(invQuantity.compareTo(quantity) >= 0){
+		}else if(invQuantity.compareTo(quantity) >= 0){ // (x, y):: the value 0 if x == y; a value less than 0 if x < y; and a value greater than 0 if x > y
 			setValue(productName, (invQuantity.intValue()-quantity.intValue()));
 			Order purchase = new Order(userName,productName, quantity, this.globalID);
 			incrementGlobalID();
-			orderList.add(purchase);
+			orderList.add(purchase); // null pointer here, purchase  
 			int id = getID();
-			ret = "You order has been placed, <" + id + "> <" + userName+ "> <" + productName + "> <" + quantity + ">";
+			ret = ("You order has been placed, <" + id + "> <" + userName+ "> <" + productName + "> <" + quantity + ">\n" );
 		}else{
 			ret = "Not Available - Not enough items";
 		}
