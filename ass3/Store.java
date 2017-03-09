@@ -10,7 +10,7 @@ public class Store {
 	private static Store singleton = null;   // doing the singleton thing
 	
 	public Store(){
-		globalID = 1;
+		globalID = 0;
 		inventory = new HashMap<String, Integer>();
 		orderList = new ArrayList<Order>();
 	}

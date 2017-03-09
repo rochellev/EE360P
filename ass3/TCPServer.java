@@ -9,28 +9,29 @@ public class TCPServer implements Runnable{
 	
 	public TCPServer(int port) throws IOException{
 		socket = new ServerSocket(port);
+		//System.out.println("In TCPServer, made socket");
 	}
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		while(true){
-			Socket s;
+			int i = 0;
 			//System.out.println("New TCP Connection");
 			try {
-				s = socket.accept();
-				TCPRequests tcpRequests = null;
-				while(s != null){
+				Socket s;
+				TCPRequests tcpRequests;
+				
+				while((s = socket.accept()) != null){
 					tcpRequests = new TCPRequests(s);
-					//Thread tcp = new Thread(tcpRequests);
-					//tcp.start();
-					//s = socket.accept();
+					Thread tcp = new Thread(tcpRequests);
+					tcp.start();
+					i++;
 				}
+				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+			System.out.println("in while number " + i + "");
 		}
 	}
 

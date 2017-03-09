@@ -21,13 +21,13 @@ public class Server {
 
 			System.exit(-1);
 		}
-		InetAddress tcpPortAddr = InetAddress.getLocalHost();
-		InetAddress udpPortAddr = InetAddress.getLocalHost();
+	//	InetAddress tcpPortAddr = InetAddress.getLocalHost();
+		//InetAddress udpPortAddr = InetAddress.getLocalHost();
 
 		tcpPort = Integer.parseInt(args[0]);
 		udpPort = Integer.parseInt(args[1]);
 		String fileName = args[2]; // use to set up inventory
-		System.out.println("tcp" + tcpPort);
+		//System.out.println("tcp" + tcpPort);
 		// parse the inventory file, done once
 		HashMap<String, Integer> inventory = new HashMap<String, Integer>();
 		String line;
@@ -39,7 +39,7 @@ public class Server {
 																// with buffer
 			buffReader = new BufferedReader(fileReader);
 			line = buffReader.readLine(); // gets a line terminated by enter
-			System.out.println("Server getting inputs");
+		//	System.out.println("Server getting inputs");
 			while (line != null) {
 				// the line has a string and integer
 				arr = line.split(" ");
@@ -48,7 +48,7 @@ public class Server {
 				line = buffReader.readLine();
 
 			}
-			System.out.println("Server done getting inputs");
+		//	System.out.println("Server done getting inputs");
 			buffReader.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("hey, can't find the file " + fileName + " ");
@@ -64,9 +64,9 @@ public class Server {
 		EE360PStore.setInv(inventory);
 
 		// TODO: handle request from clients
-		TCPServer tcpServer = new TCPServer(2);
+		TCPServer tcpServer = new TCPServer(tcpPort);
 		Thread TCP = new Thread(tcpServer);
-		UDPServer udpServer = new UDPServer(3);
+		UDPServer udpServer = new UDPServer(udpPort);
 		Thread UDP = new Thread(udpServer);
 		TCP.start();
 		UDP.start();
@@ -74,14 +74,12 @@ public class Server {
 			try {
 				TCP.join();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			try {
 				UDP.join();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

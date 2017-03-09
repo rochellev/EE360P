@@ -13,7 +13,7 @@ public class UDPServer implements Runnable {
 	
 	public UDPServer(int udpPort) throws SocketException {
 		socket = new DatagramSocket(udpPort);
-		System.out.println("hey in udp Server");
+		//System.out.println("hey in udp Server");
 	}
 
 	@Override

@@ -3,11 +3,11 @@ purchase lavanya laptop 5
 purchase bob car 1
 search rochelle
 list
-cancel rochelle phone 2
+cancel 1
 list
 
 
-*** Problems ***
+*** UDP Bugs ***
 list	- writes nullphone idk  
 this is how it looks ::::	
 list   ///what i type
@@ -16,27 +16,14 @@ ps4 17
 camera 10
 laptop 15
 xbox 8
-search	-only prints the username,  
-		-missing the name of items bought and quantity
-		
-purchase	-allows buy items that do not exits
-
-
---check to see if the tokens being sent to receivers
--- logic with store
--- printing the store 
--- print the oreder id with purchases
-
-
-store: 
--- add printing method, could be useful for implementing list?   
--- how pass, can print? probs not
 
  System.out.println("the token[3]" + Integer.valueOf(tokens[3]));
  
  
- -- after one request, not accept any other
- 
+
+*** TCP Bugs ***
+list -- printing the list 5 times,, maybe bc name number of items
+-- confirmed, added 6th item, and prints list 6 times
  
  server socket
 

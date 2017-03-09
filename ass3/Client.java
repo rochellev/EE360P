@@ -27,7 +27,7 @@ public class Client {
 			System.out.println("\t(3) <udpPort>: the port number for UDP connection"); // 3
 			System.exit(-1);
 		}
-		System.out.println("Running client");
+	//	System.out.println("Running client");
 		hostAddress = args[0];
 		tcpPort = Integer.parseInt(args[1]);
 		udpPort = Integer.parseInt(args[2]);
