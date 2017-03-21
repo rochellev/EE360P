@@ -5,16 +5,30 @@ import java.util.Scanner;
 
 public class Client {
 
-	private static ArrayList<String> serverList;
+	//private static ArrayList<String> serverList = new ArrayList<String>();
+	private static ArrayList<ServerInfo> serverList; 
 
+	public void tcpComm(String cmd){
+		
+	}
+	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		int numServer = sc.nextInt();
+		int numServer = sc.nextInt(); //first line is number of servers
+		serverList = new ArrayList<ServerInfo>();
 
 		for (int i = 0; i < numServer; i++) {
 			// TODO: parse inputs to get the ips and ports of servers
-			String serverIPS = sc.nextLine();  //should be id? 
-			serverList.add(serverIPS);
+			String line = sc.nextLine();  //<ip-address>:<port-number>
+			ServerInfo server = new ServerInfo(line);
+			serverList.add(server);  // the ServerInfo class has getters for id and port#
+		
+			
+			/*
+			
+			String serverIP ;
+			*/
+			//
 		}
 
 		while (sc.hasNextLine()) {
@@ -24,6 +38,8 @@ public class Client {
 			if (tokens[0].equals("purchase")) {
 				// TODO: send appropriate command to the server and display the
 				// appropriate responses form the server
+				
+				
 			} else if (tokens[0].equals("cancel")) {
 				// TODO: send appropriate command to the server and display the
 				// appropriate responses form the server
