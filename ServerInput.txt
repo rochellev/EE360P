@@ -1,0 +1,21 @@
+1 2 inventory.txt
+127.0.0.1:8025
+127.0.0.1:8030
+
+
+2
+127.0.0.1:8025
+127.0.0.1:8030
+purchase Tim phone 10
+list
+search Tim
+cancel 1
+list
+
+
+
+2
+127.0.0.1:8030
+127.0.0.1:8025
+purchase Tim phone 10
+list

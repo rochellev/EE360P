@@ -3,7 +3,7 @@ package q1;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Timestamp implements Comparable, Serializable {
+public class Timestamp implements Comparable<Object>, Serializable {
     private Date timestamp;
     private int id;
 

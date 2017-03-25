@@ -7,78 +7,95 @@ import java.util.Iterator;
 
 class Store implements Serializable {
 
-    private static Store instance = null;
-    private HashMap<String, Integer> inventory;
-    private int curOrderID;
-    private ArrayList<Order> orders;
+	private int globalID;
+	private HashMap<String, Integer> inventory;
+	private ArrayList<Order> orderList;
+	private static Store singleton = null;   // doing the singleton thing
 
-    private Store() {
-        inventory = new HashMap<>();
-        curOrderID = 1;
-        orders = new ArrayList<>();
-    }
+	public Store(){
+		globalID = 0;
+		inventory = new HashMap<String, Integer>();
+		orderList = new ArrayList<Order>();
+	}
 
-    private Store(HashMap<String, Integer> inv) {
-        inventory = inv;
-        curOrderID = 1;
-        orders = new ArrayList<>();
-    }
+    public Store(int id, HashMap<String, Integer> inv, ArrayList<Order> list){
+		globalID = id;
+		this.inventory = inv;
+		this.orderList = list;
+	}
 
-    static Store getInstance() {
-        if (instance == null) {
-            synchronized (Store.class) {
-                if (instance == null) {
-                    instance = new Store();
-                }
-            }
-        }
-        return instance;
-    }
+    public static Store getInstance() {
+		if (singleton == null) {
+			synchronized (Store.class) {
+				if (singleton == null) {
+					singleton = new Store();
+				}
+			}
+		}
+		return singleton;
+	}
 
-    static Store getInstance(HashMap<String, Integer> inv) {
-        if (instance == null) {
-            synchronized (Store.class) {
-                if (instance == null) {
-                    instance = new Store(inv);
-                }
-            }
-        }
-        return instance;
-    }
+    public void setID(int id){
+		globalID = id;
+	}
+	
+	public int getID(){
+		return globalID;
+	}
+	public void setInv(HashMap<String, Integer> inv){
+		inventory = inv;
+	}
+	public void incrementGlobalID(){
+		globalID++;
+	}
+	public Integer getValue(String key){
+		boolean flag= inventory.containsKey(key);
+		if(!flag)
+			return -1;
+		else
+			return inventory.get(key);  // returns null if no mapping
+	}
+	
+	public void setValue(String key, Integer value){
+		inventory.put(key,value);
+	}
 
-    static void setInstance(Store s) {
-        instance = s;
-    }
-
-    private class Order implements Serializable {
-        int id;
-        String user;
-        String product;
-        int quantity;
-
-        Order(String user, String product, int quantity, int id) {
-            this.product = product;
-            this.quantity = quantity;
-            this.id = id;
-            this.user = user;
-        }
-
-        int getID() {
-            return id;
-        }
-
-        String getUser() {
-            return user;
-        }
-
-        String getProduct() {
-            return product;
-        }
-
-        int getQuantity() {
-            return quantity;
-        }
-
+    public class Order implements Serializable{
+	    private String userName, productName;
+		private int quantity, orderID;
+	
+		public Order(String userName, String productName, int quantity, int orderID){
+			this.userName = userName;
+			this.productName = productName;
+			this.quantity = quantity;
+			this.orderID = orderID;
+		}
+		
+		public Order(){
+			this.userName = null;
+			this.productName = null;
+			this.quantity = 0;
+			this.orderID = 0;
+		}
+		
+		public String getUserName(){
+			return userName;
+			
+		}
+		
+		public String getProductName(){
+			return productName;
+			
+		}
+		
+		public int getQuantity(){
+			return quantity;
+			
+		}
+		
+		public int getOrderID(){
+			return orderID;
+		}
     }
 
     /**
@@ -89,62 +106,85 @@ class Store implements Serializable {
      * @return 0 if quantity too low, -1 if item does not exist or order ID if
      *         purchase is successful
      */
-    synchronized int purchase(String user, String product,
-                                     int quantity) {
-        if (!inventory.keySet().contains(product)) {
-            return -1;
-        } else if ((int) inventory.get(product) >= quantity) {
-            orders.add(new Order(user, product, quantity, curOrderID));
-            int newID = curOrderID;
-            curOrderID++;
-            inventory.put(product, (int) inventory.get(product) - quantity);
-            return newID;
-        }
-        return 0;
-    }
 
-    synchronized String cancel(int orderID) {
-        String retStr = orderID + " not found, no such order";
-        for (int i = 0; i < orders.size(); i++) {
-            if (orders.get(i).getID() == orderID) {
-                int curInv = inventory.get(orders.get(i).getProduct());
-                curInv += orders.get(i).getQuantity();
-                inventory.put(orders.get(i).getProduct(), curInv);
-                retStr = "Order " + orderID + " is canceled";
-                orders.remove(i);
-            }
-        }
-        return retStr;
-    }
+    public synchronized String makePurchase(String userName, String productName, int quantity){
+		Integer invQuantity = getValue(productName); //checks the inventory hash map, returns the # of items in inventory
+		
+		String ret = "Not Available - We do not sell this product";
+		if(invQuantity == -1){
+			
+		}else if(invQuantity >=quantity){ // (x, y):: the value 0 if x == y; a value less than 0 if x < y; and a value greater than 0 if x > y
+			setValue(productName, invQuantity-quantity);
+			Order purchase = new Order(userName,productName, quantity, this.globalID);
+			incrementGlobalID();
+			orderList.add(purchase); // null pointer here, purchase  
+			int id = getID();
+			ret = ("You order has been placed, <" + id + "> <" + userName+ "> <" + productName + "> <" + quantity + ">\n" );
+		}else if (invQuantity<quantity){
+			ret = "Not Available - Not enough items";
+		}
+		return ret;		
+	}
 
-    synchronized ArrayList<String> search(String user) {
-        ArrayList<Order> userOrders = new ArrayList<>();
-        for (int i = 0; i < orders.size(); i++) {
-            if (orders.get(i).getUser().equals(user)) {
-                userOrders.add(orders.get(i));
-            }
-        }
-        ArrayList<String> output = new ArrayList<>();
-        if (userOrders.isEmpty()) {
-            output.add("No order found for " + user);
-        } else {
-            Iterator<Order> i = userOrders.iterator();
-            while (i.hasNext()) {
-                Order next = i.next();
-                output.add(next.getID() + ", " + next.getProduct() + ", "
-                        + next.getQuantity());
-            }
-        }
-        return output;
-    }
+    public synchronized String cancelPurchase(int orderID){
+		boolean found = false;
+		String productName;
+		Integer val;
+		Order cancel = null;
+		String ret = null;
+		for(Order x: orderList){
+			if(x.getOrderID()==orderID){
+				cancel = x;
+				productName = x.getProductName();
+				val = x.getQuantity();
+				orderList.remove(x);
+				found = true;
+				ret = "Order <" + orderID + "> is canceled";
+				break;			
+			}
+		}
+		if(!found){
+			ret = "<" + orderID + "> not found, no such order";
+		}else{
+			Integer invQuantity = getValue(cancel.getProductName()); //inv current value
+			Integer prodtQuantity = cancel.getQuantity();
+			
+			inventory.put(cancel.getProductName(), invQuantity + prodtQuantity);
+			
+		}
+		return ret;
+	}
 
-    String[] list() {
-        String[] data = new String[inventory.size()];
-        int i = 0;
-        for (String key : inventory.keySet()) {
-            data[i] = key + " " + inventory.get(key);
-            i++;
-        }
-        return data;
-    }
+    public synchronized  ArrayList<String> search(String username){
+    	ArrayList<String> orders = new ArrayList<>();
+		boolean found = false;
+		String ret = null;
+		for(Order x: orderList){
+			if(x.getUserName().equals(username)){
+				found = true;
+				ret = "<" + x.getOrderID()+ "> <"+ x.getProductName()+ "> <" + x.getQuantity()+ ">";
+				orders.add(ret);
+			}
+			
+		}
+		if(!found){
+			ret = "No order found for <" + username + ">";
+		}
+		return orders;
+		
+	}
+
+    public synchronized ArrayList<String> list(){
+		ArrayList<String> ret = new ArrayList<String>();
+		for (String productname: inventory.keySet()){
+            Integer value = inventory.get(productname);  
+            ret.add(productname + " " + value);  
+		}
+		return ret; 
+	}
+
+	public static void setInstance(Store readObject) {
+		// TODO Auto-generated method stub
+		singleton = readObject;
+	}
 }

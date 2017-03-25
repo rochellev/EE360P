@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
 
 
 public class SocketTimeoutTask implements Callable<Boolean>{
-
 	Socket socket;
 	Scanner din;
 	
@@ -17,7 +16,6 @@ public class SocketTimeoutTask implements Callable<Boolean>{
 	
 	@Override
 	public Boolean call() throws Exception {
-		// TODO Auto-generated method stub
 		while (din.hasNextLine()) {
 			System.out.println(din.nextLine());
 		}
@@ -25,4 +23,3 @@ public class SocketTimeoutTask implements Callable<Boolean>{
 	}
 	
 }
-

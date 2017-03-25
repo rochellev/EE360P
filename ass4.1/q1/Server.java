@@ -3,6 +3,8 @@ package q1;
 import java.util.*;
 import java.io.*;
 
+//import q3.Store;
+
 public class Server {
 
     static Map<Integer, String> ipMap = new HashMap<>();
@@ -32,33 +34,21 @@ public class Server {
         }
         sc.close();
 
-        // Parse the inventory file
-       /* try (FileReader fileReader = new FileReader(inventoryPath)) {
-            String line;
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            while ((line = bufferedReader.readLine()) != null) {
+        try (Scanner file = new Scanner(new FileReader("src/q1/inventory.txt"))) {
+        	String line;
+            while ((file.hasNextLine())) {
+            	line = file.nextLine();
                 inventory.put(line.split(" ")[0], Integer.parseInt(line.split(" ")[1]));
             }
         }
-        */
-        
-        try (Scanner file = new Scanner(new FileReader("src/q1/inventory.txt"))) {
-        	System.out.println("\n Hey Lavanya I think I got it to work!!!");
-            String line;
-            //BufferedReader bufferedReader = new BufferedReader(fileReader);
-            while ((file.hasNextLine())) {
-            	System.out.println(file.nextLine());
-                //inventory.put(line.split(" ")[0], Integer.parseInt(line.split(" ")[1]));
-            }
-        }
-        Store.getInstance(inventory);
+        Store TheStore = Store.getInstance();
+	    TheStore.setID(1);
+	    TheStore.setInv(inventory);
 
-        // Start server socket to communicate with clients and other servers
         Thread clientListener = new Thread(new ClientListener(clientPortMap.get(myID), myID));
         Thread serverListener = new Thread(new ServerListener(serverPortMap.get(myID), myID));
 
         clientListener.start();
         serverListener.start();
-        // heartbeat.start();
     }
 }

@@ -14,64 +14,42 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Client {
-	
-	private final static String ARG_ERROR = "ERROR: Incorrect number of arguments";
-	
-	private final static int PURCHASE_ARGS = 4;
-	private final static int CANCEL_ARGS = 2;
-	private final static int SEARCH_ARGS = 2;
-	private final static int TIMEOUT = 100;
-	private static ArrayList<String> servers;
-	
-	private static ExecutorService executor = Executors.newCachedThreadPool();
+
+	private static ArrayList<String> serverList;
 	
 	
-	public static void attemptCommunication(String command){
-		Iterator<String> i = servers.iterator();
-		Socket sock = null;
-		InputStream in = null;
-		OutputStream out = null;
-		PrintStream pout = null;
-		Scanner din = null;
-		while(i.hasNext()){
-			String serverDetails = i.next();
+	// repeated for each command
+	public static void tcpComm(String cmd){
+		Socket socket = null;
+		InputStream inStream = null;
+		OutputStream outStream = null;
+		PrintStream printOut = null;
+		Scanner inData = null;
+		
+		for(String s : serverList){
+			String serverDetails = s;
 			String ip = serverDetails.split(":")[0];
 			int port = Integer.parseInt(serverDetails.split(":")[1]);
 			try {
 				InetAddress addr = InetAddress.getByName(ip);
-				sock = new Socket();
-				sock.connect(new InetSocketAddress(addr, port), TIMEOUT);
-				in = sock.getInputStream();
-				out = sock.getOutputStream();
-				pout = new PrintStream(out);
-				din = new Scanner(in);
-				pout.println(command);
-				pout.flush();
-				
-				while (din.hasNextLine()) {
-					System.out.println(din.nextLine());
+				socket = new Socket();
+				socket.connect(new InetSocketAddress(addr, port), 100);
+				inStream = socket.getInputStream();
+				outStream = socket.getOutputStream();
+				printOut = new PrintStream(outStream);
+				inData = new Scanner(inStream);
+				printOut.println(cmd);
+				printOut.flush(); //remember to flush!
+			
+				while (inData.hasNextLine()) {
+					System.out.println(inData.nextLine());
 				}
-				sock.close();
+				
+				socket.close();
 				return;
-				/*
-				Future<Boolean> future = executor.submit(new SocketTimeoutTask(sock, din));
-				try {
-					if(future.get(TIMEOUT, TimeUnit.MILLISECONDS)){
-						
-						return;
-					}
-				} catch (InterruptedException | ExecutionException
-						| TimeoutException e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
-					continue;
-				}
-				*/
-				
+			
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-				continue;
+				e.printStackTrace();
 			}
 		}
 	}
@@ -80,12 +58,12 @@ public class Client {
 	public static void main (String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int numServer = Integer.parseInt(sc.nextLine());
-		servers = new ArrayList<String>();
+		serverList = new ArrayList<String>();
 		
-	    while (servers.size() < numServer) {
+	    while (serverList.size() < numServer) {
 	      // TODO: parse inputs to get the ips and ports of servers
 	    	String server = sc.nextLine();
-	    	servers.add(server);
+	    	serverList.add(server);
 	    }
 
 	    while(sc.hasNextLine()) {
@@ -94,38 +72,31 @@ public class Client {
 	      if (tokens[0].equals("purchase")) {
 	        // TODO: send appropriate command to the server and display the
 	        // appropriate responses form the server
-	    	  if (tokens.length != PURCHASE_ARGS) {
-					System.out.println(ARG_ERROR);
-					System.out.println(
-							"purchase <user-name> <product-name> <quantity>");
-					continue;
+	    	  if (tokens.length != 4) {
+					System.out.println("Incorrect purchase command");
 				}
-	    	  attemptCommunication(cmd);
+	    	  tcpComm(cmd);
 	    	  
 	      } else if (tokens[0].equals("cancel")) {
 	        // TODO: send appropriate command to the server and display the
 	        // appropriate responses form the server
-	    	  if (tokens.length != CANCEL_ARGS) {
-					System.out.println(ARG_ERROR);
-					System.out.println("cancel <order-id>");
-					continue;
+	    	  if (tokens.length != 2) {
+	    		  System.out.println("Incorrect cancel command");
 				}
-	    	  attemptCommunication(cmd);
+	    	  tcpComm(cmd);
 	    	  
 	      } else if (tokens[0].equals("search")) {
 	        // TODO: send appropriate command to the server and display the
 	        // appropriate responses form the server
-	    	  if (tokens.length != SEARCH_ARGS) {
-					System.out.println(ARG_ERROR);
-					System.out.println("search <user-name>");
-					continue;
+	    	  if (tokens.length != 2) {
+					System.out.println("Incorrect search command");
 				}
-	    	  attemptCommunication(cmd);
+	    	  tcpComm(cmd);
 	    	  
-	      } else if (tokens[0].equals("list")) {
+	      } else if (tokens[0].equals("list")) {  //only has one argument
 	        // TODO: send appropriate command to the server and display the
 	        // appropriate responses form the server
-	    	  attemptCommunication(cmd);
+	    	  tcpComm(cmd);
 	      } else {
 	        System.out.println("ERROR: No such command");
 	      }
